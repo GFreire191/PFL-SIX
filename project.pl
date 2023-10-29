@@ -7,6 +7,8 @@ clear :- write('\33\[2J').
 
 % ---------------------------------------
 
+
+
 makeSix :-
     print_menu,
     read(Option), nl,
@@ -43,14 +45,13 @@ start_game :-
 
 
 process_option_game(1, Board, Player, NewBoard) :-
+
     write('Which row?'),
     read(Row),
     write('Which column?'),
     read(Column),
-    check_matrix(Row, Column) -> place_disk(Board, Row, Column, Player, NewBoard); 
-    write('INVALID OPTION!'), nl,nl,
-    print_menu_game,
-    process_option_game(1, Board, Player, NewBoard).
+    check_matrix(Row, Column) -> place_disk(Board, Row, Column, Player, NewBoard);
+    handle_invalid_input.
 
 process_option_game(2, Board, Player, NewBoard) :-
     write('Choose the row of the tower you want to move:'),
@@ -62,13 +63,9 @@ process_option_game(2, Board, Player, NewBoard) :-
     read(NewRow),
     write('Choose the column where you want to move the tower:'),
     read(NewColumn),
-    check_matrix(NewRow, NewColumn) -> move_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard);
-    write('INVALID OPTION!'), nl,
-    print_menu_game,
-    process_option_game(2, Board, Player, NewBoard);
-    write('INVALID OPTION!'), nl,
-    print_menu_game,
-    process_option_game(2, Board, Player, NewBoard).
+    check_matrix(NewRow, NewColumn) -> move_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard)
+    handle_invalid_input;
+    handle_invalid_input.
     
 
 
@@ -85,13 +82,9 @@ process_option_game(3, Board, Player, NewBoard) :-
     write('How many pieces do you want to move?'),
     read(amount_to_move),
     
-    check_matrix(NewRow, NewColumn) -> move_part_tower(Board, OldRow, OldColumn, NewRow, NewColumn, amount_to_move, NewBoard);
-    write('INVALID OPTION!'), nl,
-    print_menu_game,
-    process_option_game(3, Board, Player, NewBoard);
-    write('INVALID OPTION!'), nl,
-    print_menu_game,
-    process_option_game(3, Board, Player, NewBoard).
+    check_matrix(NewRow, NewColumn) -> move_part_tower(Board, OldRow, OldColumn, NewRow, NewColumn, amount_to_move, NewBoard)
+    handle_invalid_input;
+    handle_invalid_input.
 
     
 
@@ -131,16 +124,19 @@ game_loop(Board, Player) :-
     game_loop(NewBoard, NextPlayer).
 
 
+
 % Place a new disk. Add a disk to the board, at the beggining of the list located at the given row and column.
 
 place_disk(Board, Row, Column, Player, NewBoard) :-
     
     nth0(Row, Board, RowList),
     nth0(Column, RowList, ColumnList),
+    length(ColumnList, Length),
+    Length == 0 ->
     append([Player], ColumnList, NewColumnList),
     replace(RowList, Column, NewColumnList, NewRowList),
-    write('Got here'),
-    replace(Board, Row, NewRowList, NewBoard).
+    replace(Board, Row, NewRowList, NewBoard);
+    handle_ivalid_moves(Board, Player, NewBoard).
 
 
 replace([_|T], 0, X, [X|T]).
@@ -152,18 +148,29 @@ replace([H|T], I, X, [H|R]) :-
 
 
 
+    
 
 
 
+% Move an entire tower. 
 move_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard) :-
     write('Need to be done'), nl.
 
-
+% Move only a part of a tower.
 move_part_tower(Board, OldRow, OldColumn, NewRow, NewColumn, Amount, NewBoard) :-
     write('Need to be done'), nl.
 
 
+handle_ivalid_moves(Board, Player, NewBoard):-
+    write('INVALID OPTION!'), nl,
+    print_menu_game,
+    read(OptionGame),nl,
+    process_option_game(OptionGame, Board, Player, NewBoard).
 
+handle_invalid_input(Board, Player, NewBoard, OptionGame):-
+    write('INVALID OPTION!'), nl,
+    print_menu_game,
+    process_option_game(OptionGame, Board, Player, NewBoard).
     
 
 
