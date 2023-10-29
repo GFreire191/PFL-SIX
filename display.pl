@@ -70,3 +70,9 @@ print_menu :-
     write('| 3. - Move part of a tower   |'), nl,
     write('|-----------------------------|'), nl,
     write('| Choose an option            |'), nl.
+
+
+
+write_player_info(Player,Disks) :-
+    write('You have '), write(Disks), write(' disks left.'), nl, nl,
+    write('Player '), write(Player), write(' turn:'), nl, nl.

@@ -141,9 +141,7 @@ game_loop(Board, Player) :-
 
 
 
-write_player_info(Player,Disks) :-
-    write('You have '), write(Disks), write(' disks left.'), nl, nl,
-    write('Player '), write(Player), write(' turn:'), nl, nl.
+
     
 % Place a new disk. Add a disk to the board, at the beggining of the list located at the given row and column.
 
