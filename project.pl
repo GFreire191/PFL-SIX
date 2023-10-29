@@ -145,8 +145,7 @@ game_loop(Board, Player) :-
 
 place_disk(Board, Row, Column, Player, NewBoard) :-
 
-    nth0(Row, Board, RowList),
-    nth0(Column, RowList, ColumnList),
+    get_columnList(Board, Row, Column, ColumnList),
     length(ColumnList, Length),
     Length == 0 ->
     append([Player], ColumnList, NewColumnList),
@@ -164,7 +163,9 @@ replace([H|T], I, X, [H|R]) :-
 
 
 
-    
+get_columnList(Board, Row, Column, ColumnList) :-
+    nth0(Row, Board, RowList),
+    nth0(Column, RowList, ColumnList).
 
 
 
