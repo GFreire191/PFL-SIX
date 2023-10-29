@@ -36,6 +36,9 @@ process_option(_) :-
     makeSix.
 
 % ---------------------------------------
+:- dynamic player_disks/2.
+player_disks(w, 1).
+player_disks(b, 2).
 
 start_game :-
     initial_board(Board),
@@ -44,14 +47,23 @@ start_game :-
 
 
 
-process_option_game(1, Board, Player, NewBoard) :-
 
+
+
+process_option_game(1, Board, Player, NewBoard) :-
+    player_disks(Player,Count),
+    Count > 0,
     write('Which row?'),
     read(Row),
     write('Which column?'),
     read(Column),
-    check_matrix(Row, Column) -> place_disk(Board, Row, Column, Player, NewBoard);
-    handle_invalid_input.
+    check_matrix(Row, Column) -> place_disk(Board, Row, Column, Player, NewBoard),
+    NewCount is Count - 1,
+    retract(player_disks(Player, Count)),
+    assert(player_disks(Player, NewCount));
+    handle_invalid_input(Board, Player, NewBoard,1).
+    
+
 
 process_option_game(2, Board, Player, NewBoard) :-
     write('Choose the row of the tower you want to move:'),
@@ -63,9 +75,9 @@ process_option_game(2, Board, Player, NewBoard) :-
     read(NewRow),
     write('Choose the column where you want to move the tower:'),
     read(NewColumn),
-    check_matrix(NewRow, NewColumn) -> move_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard)
-    handle_invalid_input;
-    handle_invalid_input.
+    check_matrix(NewRow, NewColumn) -> move_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard),
+    handle_invalid_input(Board, Player, NewBoard);
+    handle_invalid_input(Board, Player, NewBoard).
     
 
 
@@ -82,9 +94,9 @@ process_option_game(3, Board, Player, NewBoard) :-
     write('How many pieces do you want to move?'),
     read(amount_to_move),
     
-    check_matrix(NewRow, NewColumn) -> move_part_tower(Board, OldRow, OldColumn, NewRow, NewColumn, amount_to_move, NewBoard)
-    handle_invalid_input;
-    handle_invalid_input.
+    check_matrix(NewRow, NewColumn) -> move_part_tower(Board, OldRow, OldColumn, NewRow, NewColumn, amount_to_move, NewBoard),
+    handle_invalid_input(Board, Player, NewBoard);
+    handle_invalid_input(Board, Player, NewBoard).
 
     
 
@@ -117,6 +129,9 @@ next_player(b, w).
 game_loop(Board, Player) :-
     print_board(Board), nl, nl,
     print_menu_game,
+    % Write the number of disks player has.
+    player_disks(Player, Disks),
+    print_player_disks(Player, Disks),    
     write('Player '), write(Player), write(' turn:'), nl, nl,
     read(OptionGame), nl,nl,
     process_option_game(OptionGame, Board, Player, NewBoard),
@@ -128,7 +143,7 @@ game_loop(Board, Player) :-
 % Place a new disk. Add a disk to the board, at the beggining of the list located at the given row and column.
 
 place_disk(Board, Row, Column, Player, NewBoard) :-
-    
+
     nth0(Row, Board, RowList),
     nth0(Column, RowList, ColumnList),
     length(ColumnList, Length),
@@ -162,16 +177,27 @@ move_part_tower(Board, OldRow, OldColumn, NewRow, NewColumn, Amount, NewBoard) :
 
 
 handle_ivalid_moves(Board, Player, NewBoard):-
-    write('INVALID OPTION!'), nl,
+    write('INVALID OPTION!'), nl, write('You can only place a disk in an empty spot!'), nl,
     print_menu_game,
     read(OptionGame),nl,
     process_option_game(OptionGame, Board, Player, NewBoard).
 
-handle_invalid_input(Board, Player, NewBoard, OptionGame):-
-    write('INVALID OPTION!'), nl,
+handle_invalid_input(Board, Player, NewBoard):-
+    write('INVALID OPTION! The input is off limits!'), nl,
     print_menu_game,
+    read(OptionGame),nl,
     process_option_game(OptionGame, Board, Player, NewBoard).
     
 
+handle_invalid_input(Board, Player, NewBoard,1):-
+    write('INVALID OPTION!'), nl, write('The input might have been off limits!'), nl, write('If not, check if you have any disks left!'), nl,
+    print_menu_game,
+    player_disks(Player, Disks),
+    print_player_disks(Player, Disks),
+    read(OptionGame),nl,
+    process_option_game(OptionGame, Board, Player, NewBoard).
 
 
+
+print_player_disks(Player, Disks) :-
+    write('Player '), write(Player), write(' has '), write(Disks), write(' disks left.'), nl.
