@@ -1,6 +1,5 @@
 :- use_module(library(lists)).
-:- consult('board.pl').
-:- consult('menu.pl').
+:- consult('display.pl').
 :- consult('handle.pl').
 
 
@@ -8,9 +7,16 @@ clear :- write('\33\[2J').
 
 % ---------------------------------------
 
-
+initial_GameState([
+    [[], [], [], [], []],
+    [[], [], [], [], []],
+    [[], [], [], [], []],
+    [[], [], [], [], []],
+    [[], [], [], [], []]
+    ]).
 
 play :-
+
     print_menu,
     read(Option), nl,
     process_option(Option).
@@ -42,8 +48,8 @@ player_disks(w, 16).
 player_disks(b, 16).
 
 start_game :-
-    initial_board(Board),
-    game_loop(Board, w).
+    initial_GameState(GameState),
+    game_loop(GameState, w).
     
 
 
@@ -71,13 +77,11 @@ process_option_game(2, Board, Player, NewBoard) :-
     read(Row),
     write('Choose the column of the tower you want to move:'),
     read(Column),
-    check_matrix(Row, Column) ->
     write('Choose the row where you want to move the tower:'),
     read(NewRow),
     write('Choose the column where you want to move the tower:'),
     read(NewColumn),
-    check_matrix(NewRow, NewColumn) -> move_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard),
-    handle_invalid_input(Board, Player, NewBoard);
+    check_matrix(Row,Column) ,check_matrix(NewRow, NewColumn) -> move_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard);
     handle_invalid_input(Board, Player, NewBoard).
     
 
@@ -94,12 +98,9 @@ process_option_game(3, Board, Player, NewBoard) :-
     read(NewColumn),
     write('How many pieces do you want to move?'),
     read(amount_to_move),
-    
-    check_matrix(NewRow, NewColumn) -> move_part_tower(Board, OldRow, OldColumn, NewRow, NewColumn, amount_to_move, NewBoard),
-    handle_invalid_input(Board, Player, NewBoard);
+    check_matrix(Row,Column) ,check_matrix(NewRow, NewColumn) -> move_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard);
     handle_invalid_input(Board, Player, NewBoard).
 
-    
 
 process_option_game(_) :- 
     write('INVALID OPTION!'), nl,
