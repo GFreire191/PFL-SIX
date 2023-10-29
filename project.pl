@@ -10,7 +10,7 @@ clear :- write('\33\[2J').
 
 
 
-makeSix :-
+play :-
     print_menu,
     read(Option), nl,
     process_option(Option).
@@ -27,19 +27,19 @@ process_option(4) :-
     write('Invalid Option!'), nl,
     write('Invalid Option!'), nl,
     write('Invalid Option!'), nl, nl,
-    makeSix.
+    play.
 
 process_option(5) :- 
     !, write('Goodbye!'), nl.
 
 process_option(_) :- 
     write('Invalid Option!'), nl,
-    makeSix.
+    play.
 
 % ---------------------------------------
 :- dynamic player_disks/2.
-player_disks(w, 1).
-player_disks(b, 2).
+player_disks(w, 16).
+player_disks(b, 16).
 
 start_game :-
     initial_board(Board),
@@ -128,12 +128,11 @@ next_player(b, w).
 
 
 game_loop(Board, Player) :-
-    print_board(Board), nl, nl,
+    display_game(Board), nl, nl,
     print_menu_game,
     % Write the number of disks player has.
     player_disks(Player, Disks),
-    print_player_disks(Player, Disks),    
-    write('Player '), write(Player), write(' turn:'), nl, nl,
+    write_player_info(Player, Disks),
     read(OptionGame), nl,nl,
     process_option_game(OptionGame, Board, Player, NewBoard),
     next_player(Player, NextPlayer),
@@ -141,6 +140,10 @@ game_loop(Board, Player) :-
 
 
 
+write_player_info(Player,Disks) :-
+    write('You have '), write(Disks), write(' disks left.'), nl, nl,
+    write('Player '), write(Player), write(' turn:'), nl, nl.
+    
 % Place a new disk. Add a disk to the board, at the beggining of the list located at the given row and column.
 
 place_disk(Board, Row, Column, Player, NewBoard) :-
@@ -176,9 +179,3 @@ move_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard) :-
 % Move only a part of a tower.
 move_part_tower(Board, OldRow, OldColumn, NewRow, NewColumn, Amount, NewBoard) :-
     write('Need to be done'), nl.
-
-
-
-
-print_player_disks(Player, Disks) :-
-    write('Player '), write(Player), write(' has '), write(Disks), write(' disks left.'), nl.

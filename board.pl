@@ -17,11 +17,11 @@ line(5, L) :- L = '     4     '.
 
 
 
-print_board(X):-
+display_game(GameState):-
     nl,
     write('           |     0     |     1     |     2     |     3     |     4     |\n'),
     write('-----------|-----------|-----------|-----------|-----------|-----------|\n'),
-    print_matrix(X, 1).
+    print_matrix(GameState, 1).
 
 print_matrix([], 6).
 print_matrix([Head|Tail], N) :-
