@@ -38,14 +38,20 @@ process_option(_) :-
 % ---------------------------------------
 
 start_game :-
-    initial_board(Board),
-    game_loop(Board, w).
+    write('What is the board Size? (4,5)'),
+    read(BoardSize),
+    (BoardSize == 4 ; BoardSize == 5) -> 
+        initial_board(BoardSize,Board),
+        game_loop(BoardSize,Board, w);
+    write('Invalid board size. Please enter 4 or 5.'),
+    start_game.
     
 
 
 
 process_option_game(1, Board, Player, NewBoard) :-
-
+    player_disks(Player, Disks),
+    Disks > 0 ->
     write('Which row?'),
     read(Row),
     write('Which column?'),
@@ -89,6 +95,10 @@ process_option_game(_) :-
 
 % ---------------------------------------
 
+:- dynamic player_disks/2.
+player_disks(w, 16).
+player_disks(b, 16).
+
 
 check_matrix(Row, Column) :-
     is_valid(Row, Column).
@@ -109,14 +119,40 @@ next_player(w, b).
 next_player(b, w).
 
 
-game_loop(Board, Player) :-
-    print_board(Board), nl, nl,
+game_loop(BoardSize,Board, Player) :-
+    print_board(BoardSize,Board), nl, nl,
     print_menu_game,
+    player_disks(Player, Disks),
+    write('Player '), write(Player), write(' has '), write(Disks), write(' disks left.'), nl,
     write('Player '), write(Player), write(' turn:'), nl, nl,
     read(OptionGame), nl,nl,
     process_option_game(OptionGame, Board, Player, NewBoard),
+    (check_win(NewBoard, Player) -> print_board(BoardSize,NewBoard), nl, nl, !;
     next_player(Player, NextPlayer),
-    game_loop(NewBoard, NextPlayer).
+    game_loop(BoardSize,NewBoard, NextPlayer)).
+
+
+
+% Check if a player has won
+check_win(Board, Player) :-
+    % For each row in the board
+    member(Row, Board),
+    % For each column in the row
+    member(Tower, Row),
+    % If the length of the tower is 6 or more
+    length(Tower, Length),
+    Length >= 6,
+    % Get the top disk of the tower
+    nth0(0, Tower, TopDisk),
+    % If the top disk matches the current player's color, the current player wins
+    (TopDisk == Player ->
+        write('Player '), write(Player), write(' wins!'), nl;
+        % If the top disk matches the other player's color, the other player wins
+        next_player(Player, OtherPlayer),
+        TopDisk == OtherPlayer ->
+            write('Player '), write(OtherPlayer), write(' wins!'), nl),
+    !.
+    
 
 
 
@@ -173,7 +209,7 @@ move_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard) :-
     handle_ivalid_moves(Board, Player, NewBoard).
 
 
-append_tower(Board, Player, OldRow, OldColumn, NewRow, NewColumn, NewBoard) :-
+append_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard) :-
     nth0(OldRow, Board, OldRowList),
 
     write(OldRow),nl,
@@ -262,7 +298,7 @@ replaces(Board, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList,
 move_piece(1, OldRow, OldColumn, NewRow, NewColumn) :-
     move1(OldRow, OldColumn, NewRow, NewColumn).
 
-move1(Player, OldRow, OldColumn, NewRow, NewColumn) :-
+move1(OldRow, OldColumn, NewRow, NewColumn) :-
     write('Entreiiiiiiiiiiiiiii'),
     (NewRow =:= OldRow + 1, NewColumn =:= OldColumn;
     NewRow =:= OldRow - 1, NewColumn =:= OldColumn;
