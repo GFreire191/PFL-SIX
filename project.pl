@@ -65,9 +65,6 @@ process_option_game(2, Board, Player, NewBoard) :-
     check_matrix(Row, Column),check_matrix(NewRow, NewColumn) -> move_tower(Board, Row, Column, NewRow, NewColumn, NewBoard);
     handle_invalid_input(Board, Player, NewBoard).
 
-    
-    
-
 
 process_option_game(3, Board, Player, NewBoard) :-
     write('Choose the row of the tower you want to move:'),
@@ -81,7 +78,7 @@ process_option_game(3, Board, Player, NewBoard) :-
     write('How many pieces do you want to move?'),
     read(amount_to_move),
     
-    check_matrix(Row, Column),check_matrix(NewRow, NewColumn) -> move_tower(Board, Row, Column, NewRow, NewColumn, NewBoard),
+    check_matrix(Row, Column),check_matrix(NewRow, NewColumn) -> move_tower(Board, Row, Column, NewRow, NewColumn, NewBoard);
     handle_invalid_input(Board, Player, NewBoard).
 
     
@@ -125,18 +122,36 @@ game_loop(Board, Player) :-
 
 % Place a new disk. Add a disk to the board, at the beggining of the list located at the given row and column.
 
-
-
-
-
 place_disk(Board, Row, Column, Player, NewBoard) :-
     nth0(Row, Board, RowList),
+
+    write(Row),nl,
+    write(Board),nl,
+    write(RowList),nl,nl,
+
     nth0(Column, RowList, ColumnList),
+
+    write(Column),nl,
+    write(RowList),nl,
+    write(ColumnList),nl,nl,
+
     length(ColumnList, Length),
     Length == 0 ->
     append([Player], ColumnList, NewColumnList),
     replace(RowList, Column, NewColumnList, NewRowList),
-    replace(Board, Row, NewRowList, NewBoard);
+
+    write(RowList),nl,
+    write(Column),nl,
+    write(NewColumnList),nl,
+    write(NewRowList),nl,nl,
+
+    replace(Board, Row, NewRowList, NewBoard),
+
+    write(Board),nl,
+    write(Row),nl,
+    write(NewRowList),nl,
+    write(NewBoard),nl,nl;
+
     handle_ivalid_moves(Board, Player, NewBoard).
 
 
@@ -145,81 +160,159 @@ replace([H|T], I, X, [H|R]):-
     I > -1,
     NI is I-1,
     replace(T, NI, X, R), !.
-replace(L, _, _, L).
+    replace(L, _, _, L).
 
 
-
-
-
-% ---------------------------------------
-
-
-
-
-
-    
-
-
-
-
-
-    
-
-get_columnList(Board, Row, Column, ColumnList) :-
-    nth0(Row, Board, RowList),
-    nth0(Column, RowList, ColumnList).
-
-
-% ---------------------------------------
-    
-    
-% re-place a tower from a list located at the given row and column to a new row and column.
-
+% moverrrrrr
 
 move_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard) :-
-
-    
     
     append_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard),
-    write('Tower moved!'), nl, nl.
-    remove_tower(Board, OldRow, OldColumn, NewBoard).
+    write('Tower moved!'), nl, nl;
     
-
-    
-
-
-
-
-append_tower(Board, OldRow, OldColumn, NewRow, NewColumn, NewBoard) :-
-    nth0(OldRow, Board, OldRowList),
-    nth0(OldColumn, OldRowList, OldColumnList),
-    length(OldColumnList, Length),
-    Length > 0,
-    nth0(NewRow, Board, NewRowList),
-    nth0(NewColumn, NewRowList, NewColumnList),
-    length(NewColumnList, Length2),
-    Length2 \= 0 ->
-    append(OldColumnList, NewColumnList, NewColumnList2),
-    replace(NewRowList, NewColumn, NewColumnList2, NewRowList2),
-    replace(Board, NewRow, NewRowList2, NewBoard);
     handle_ivalid_moves(Board, Player, NewBoard).
 
 
+append_tower(Board, Player, OldRow, OldColumn, NewRow, NewColumn, NewBoard) :-
+    nth0(OldRow, Board, OldRowList),
 
+    write(OldRow),nl,
+    write(Board),nl,
+    write(OldRowList),nl,nl,
 
-remove_tower(Board, OldRow, OldColumn, NewBoard) :-
+    nth0(OldColumn, OldRowList, OldColumnList),
+
+    write(OldColumn),nl,
+    write(OldRowList),nl,
+    write(OldColumnList),nl,nl,
+
+    length(OldColumnList, Length),
+    Length > 0,
+
+    nth0(NewRow, Board, NewRowList),
+
+    write(NewRow),nl,
+    write(Board),nl,
+    write(NewRowList),nl,nl,
+
+    nth0(NewColumn, NewRowList, NewColumnList),
+
+    write(NewColumn),nl,
+    write(NewRowList),nl,
+    write(NewColumnList),nl,nl,
+
+    length(NewColumnList, Length2),
+    Length2 \= 0 ->
+
+    append(OldColumnList, NewColumnList, NewColumnList2),
+
+    write('IMPORTANTTTTTTT'), nl,
+    write(Length), nl,
     
+    move_piece(Length, OldRow, OldColumn, NewRow, NewColumn) -> replaces(Board, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList, NewRowList, NewColumnList, NewColumnList2, NewBoard).
+
+
+replaces(Board, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList, NewRowList, NewColumnList, NewColumnList2, NewBoard) :- 
+
+    replace(NewRowList, NewColumn, NewColumnList2, NewRowList2),
+
+    write(NewRowList),nl,
+    write(NewColumn),nl,
+    write(NewColumnList2),nl,
+    write(NewRowList2),nl,nl,
+
+    replace(Board, NewRow, NewRowList2, NewBoard1),
+    
+    write(Board),nl,
+    write(NewRow),nl,
+    write(NewRowList2),nl,
+    write(NewBoard1),nl,nl,
+
+    nth0(OldRow, NewBoard1, Remover),
+
+    write('-----------------------------------------'),nl,
+    write(OldRow),nl,
+    write(NewBoard1),nl,
+    write(Remover),nl, nl,
+
+    nth0(OldColumn, Remover, Removido),
+
+    write(OldColumn),nl,
+    write(Remover),nl,
+    write(Removido),nl, nl,
+    write('-----------------------------------------'),nl,
+    
+    replace(Remover, OldColumn, [], NewRowList3),
+
+    write(OldRowList),nl,
+    write(OldColumn),nl,
+    write('nada'),nl,
+    write(NewRowList3),nl,nl,
+
+    replace(NewBoard1, OldRow, NewRowList3, NewBoard),
+    
+    write(NewBoard1),nl,
+    write(OldRow),nl,
+    write(NewRowList3),nl,
+    write(NewBoard),nl,nl.
     
 
+% movesssssss
+    
+move_piece(1, OldRow, OldColumn, NewRow, NewColumn) :-
+    move1(OldRow, OldColumn, NewRow, NewColumn).
+
+move1(Player, OldRow, OldColumn, NewRow, NewColumn) :-
+    write('Entreiiiiiiiiiiiiiii'),
+    (NewRow =:= OldRow + 1, NewColumn =:= OldColumn;
+    NewRow =:= OldRow - 1, NewColumn =:= OldColumn;
+    NewRow =:= OldRow, NewColumn =:= OldColumn + 1;
+    NewRow =:= OldRow, NewColumn =:= OldColumn - 1).
 
 
     
 
+move_piece(2, OldRow, OldColumn, NewRow, NewColumn) :-
+    move2(OldRow, OldColumn, NewRow, NewColumn).
+        
+move2(OldRow, OldColumn, NewRow, NewColumn) :-
+    write('EntreiiiiiiiiiiiiiiiNekaaaaaa'),
+    (OldColumn =:= NewColumn, NewRow \== OldRow);
+    (OldRow =:= NewRow,  NewColumn \== OldColumn).
 
 
-% Move only a part of a tower.
-move_part_tower(Board, OldRow, OldColumn, NewRow, NewColumn, Amount, NewBoard) :-
-    write('Need to be done'), nl.
+
+
+move_piece(3, OldRow, OldColumn, NewRow, NewColumn) :-
+    move3(OldRow, OldColumn, NewRow, NewColumn).
+
+move3(OldRow, OldColumn, NewRow, NewColumn) :-
+    (RowDiff is abs(NewRow - OldRow), ColumnDiff is abs(NewColumn - OldColumn),
+    ((RowDiff =:= 1, ColumnDiff =:= 2) ; (RowDiff =:= 2, ColumnDiff =:= 1))).
+
+
+
+
+move_piece(4, OldRow, OldColumn, NewRow, NewColumn) :-
+    move4(OldRow, OldColumn, NewRow, NewColumn).
+
+move4(OldRow, OldColumn, NewRow, NewColumn) :-
+    RowDiff is abs(NewRow - OldRow),
+    ColumnDiff is abs(NewColumn - OldColumn),
+    RowDiff =:= ColumnDiff.
+
+
+
+move_piece(5, OldRow, OldColumn, NewRow, NewColumn) :-
+    move5(OldRow, OldColumn, NewRow, NewColumn).
+
+move5(OldRow, OldColumn, NewRow, NewColumn) :-
+    RowDiff is abs(NewRow - OldRow),
+    ColumnDiff is abs(NewColumn - OldColumn),
+    (RowDiff =:= ColumnDiff ; OldRow =:= NewRow ; OldColumn =:= NewColumn).
+
+
+% handlesssssss
 
 
 handle_ivalid_moves(Board, Player, NewBoard):-
@@ -235,6 +328,9 @@ handle_invalid_input(Board, Player, NewBoard):-
     read(OptionGame),nl,
     process_option_game(OptionGame, Board, Player, NewBoard).
     
+
+% handles voltar erro do 2 para o 1
+% win condition
 
 
 
