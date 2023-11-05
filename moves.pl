@@ -1,6 +1,7 @@
 :- consult('utils.pl').
 
-% Place a new disk. Add a disk to the board, at the beggining of the list located at the given row and column.
+
+% Place a disk in the board
 
 place_disk(GameState, Row, Column, Player, NewGameState) :-
     nth0(Row, GameState, RowList),
@@ -11,7 +12,7 @@ place_disk(GameState, Row, Column, Player, NewGameState) :-
     
 
 
-
+% Move a whole tower to another position
 
 move_tower(GameState,Player, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     
@@ -19,7 +20,7 @@ move_tower(GameState,Player, OldRow, OldColumn, NewRow, NewColumn, NewGameState)
     write('Tower moved!'), nl, nl.
     
 
-
+% Move a part of a tower to another position
 move_part_tower(GameState, Player, Amount, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     nth0(OldRow, GameState, OldRowList),
     nth0(OldColumn, OldRowList, OldColumnList),
@@ -33,7 +34,7 @@ move_part_tower(GameState, Player, Amount, OldRow, OldColumn, NewRow, NewColumn,
     write('Part of tower moved!'), nl, nl.
 
 
-
+%
 append_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     nth0(OldRow, GameState, OldRowList),
 
@@ -54,6 +55,8 @@ append_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList, NewRowList, NewColumnList, NewColumnList2, NewGameState).
 
 
+
+% Replace a list by other list in a list of lists
 replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList, NewRowList, NewColumnList, NewColumnList2, NewGameState) :- 
 
     replace(NewRowList, NewColumn, NewColumnList2, NewRowList2),
@@ -73,7 +76,8 @@ replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnL
 
 
 
-move_piece(1, OldRow, OldColumn, NewRow, NewColumn) :-
+
+check_moves(1, OldRow, OldColumn, NewRow, NewColumn) :-
     NewRow =:= OldRow + 1, NewColumn =:= OldColumn;
     NewRow =:= OldRow - 1, NewColumn =:= OldColumn;
     NewRow =:= OldRow, NewColumn =:= OldColumn + 1;
@@ -86,7 +90,7 @@ move_piece(1, OldRow, OldColumn, NewRow, NewColumn) :-
 
     
 
-move_piece(2, OldRow, OldColumn, NewRow, NewColumn) :-
+check_moves(2, OldRow, OldColumn, NewRow, NewColumn) :-
         OldColumn =:= NewColumn, NewRow \== OldRow;
         OldRow =:= NewRow,  NewColumn \== OldColumn.
     
@@ -95,19 +99,19 @@ move_piece(2, OldRow, OldColumn, NewRow, NewColumn) :-
 
 
 
-move_piece(3, OldRow, OldColumn, NewRow, NewColumn) :-
+check_moves(3, OldRow, OldColumn, NewRow, NewColumn) :-
     RowDiff is abs(NewRow - OldRow), ColumnDiff is abs(NewColumn - OldColumn),
     ((RowDiff =:= 1, ColumnDiff =:= 2) ; (RowDiff =:= 2, ColumnDiff =:= 1)).
     
 
 
-move_piece(4, OldRow, OldColumn, NewRow, NewColumn) :-
+check_moves(4, OldRow, OldColumn, NewRow, NewColumn) :-
     RowDiff is abs(NewRow - OldRow),
     ColumnDiff is abs(NewColumn - OldColumn),
     RowDiff =:= ColumnDiff.
 
 
-move_piece(5, OldRow, OldColumn, NewRow, NewColumn) :-
+check_moves(5, OldRow, OldColumn, NewRow, NewColumn) :-
     RowDiff is abs(NewRow - OldRow),
     ColumnDiff is abs(NewColumn - OldColumn),
     (RowDiff =:= ColumnDiff ; OldRow =:= NewRow ; OldColumn =:= NewColumn).
