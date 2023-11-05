@@ -20,14 +20,20 @@ play :-
     process_option(Option).
 
 
-
+%Player vs Player Loop
 process_option(1) :-
     nl,
     start_game(1).
 
+%Player vs Robot Loop
 process_option(2) :-
     nl,
     start_game(2).
+
+%Robot vs Robot Loop
+process_option(3):-
+    nl,
+    start_game(3).
 
 process_option(4) :-
     play.
@@ -59,6 +65,16 @@ start_game(2) :-
     write('Invalid board size. Please enter 4 or 5.'),
     start_game(2).
     
+
+
+start_game(3) :-
+    write('What is the board Size? (4,5)'),
+    read(BoardSize),
+    (BoardSize == 4 ; BoardSize == 5) -> 
+        initial_GameState(BoardSize,GameState),
+        game_loop_RR(BoardSize,GameState,w); %Loop of Robot vs Robot
+    write('Invalid board size. Please enter 4 or 5.'),
+    start_game(3).
 
 
 % If check matrix fails, handle matrix
@@ -154,7 +170,7 @@ game_loop_PR(BoardSize, GameState, Player) :-
         read(OptionGame), nl, nl,
         process_option_game(OptionGame, GameState, Player, BoardSize, NewGameState)
     ;
-        write('Robot turn:'), nl, nl,
+        write('Einstein turn:'), nl, nl,
         random_between(1, 3, OptionGame),
         robot_move(OptionGame, GameState, b, BoardSize, NewGameState)
     ),
@@ -163,6 +179,22 @@ game_loop_PR(BoardSize, GameState, Player) :-
     ;
         next_player(Player, NextPlayer),
         game_loop_PR(BoardSize, NewGameState, NextPlayer)
+    ).
+
+
+%Loop of robot vs robot, the robot chooses a random move
+
+game_loop_RR(BoardSize,GameState,Player):-
+    displayBoard(BoardSize,GameState), nl, nl,
+    write('Einstein'), write(Player), write(' turn:'), nl, nl,
+    random_between(1, 3, OptionGame),
+    print(OptionGame),nl,
+    robot_move(OptionGame, GameState, Player, BoardSize, NewGameState),
+    (check_win(NewGameState, Player) ->
+        displayBoard(BoardSize, NewGameState), nl, nl, !
+    ;
+        next_player(Player, NextPlayer),
+        game_loop_RR(BoardSize, NewGameState, NextPlayer)
     ).
 
     
@@ -175,7 +207,7 @@ robot_move(1, GameState, b,BoardSize, NewGameState) :-
     length(ColumnList, Length),
     Length == 0 ->
     place_disk(GameState, Row, Column, b, NewGameState),
-    write('Robot placed a disk in row '), write(Row), write(' and column '), write(Column), write('.'), nl;
+    write('Einstein placed a disk in row '), write(Row), write(' and column '), write(Column), write('.'), nl;
     robot_move(1, GameState, b,BoardSize, NewGameState)).
 
 %Robot move(2) usa o move_tower para mover uma torre para uma posicao aleatoria
@@ -193,7 +225,7 @@ robot_move(2, GameState, b,BoardSize, NewGameState) :-
     NewLength \=0,
     move_piece(Length, Row, Column, NewRow, NewColumn) ->
     move_tower(GameState, b, Row, Column, NewRow, NewColumn, NewGameState),
-    write('Robot moved a tower from row '), write(Row), write(' and column '), write(Column), write(' to row '), write(NewRow), write(' and column '), write(NewColumn), write('.'), nl;
+    write('Einstein moved a tower from row '), write(Row), write(' and column '), write(Column), write(' to row '), write(NewRow), write(' and column '), write(NewColumn), write('.'), nl;
     robot_move(2, GameState, b,BoardSize, NewGameState)).
 
 
@@ -215,7 +247,7 @@ robot_move(3, GameState, b,BoardSize, NewGameState) :-
     move_piece(Length, Row, Column, NewRow, NewColumn) ->
     random_between(1, Length, Amount),
     move_part_tower(GameState, b, Amount, Row, Column, NewRow, NewColumn, NewGameState),
-    write('Robot moved '), write(Amount), write(' pieces of a tower from row '), write(Row), write(' and column '), write(Column), write(' to row '), write(NewRow), write(' and column '), write(NewColumn), write('.'), nl;
+    write('Einstein moved '), write(Amount), write(' pieces of a tower from row '), write(Row), write(' and column '), write(Column), write(' to row '), write(NewRow), write(' and column '), write(NewColumn), write('.'), nl;
     robot_move(3, GameState, b,BoardSize, NewGameState)).
 
     

@@ -29,10 +29,7 @@ move_part_tower(GameState, Player, Amount, OldRow, OldColumn, NewRow, NewColumn,
     nth0(NewRow, GameState, NewRowList),
     nth0(NewColumn, NewRowList, NewColumnList),
     append(PartToMove, NewColumnList, NewColumnList2),
-    replace(NewRowList, NewColumn, NewColumnList2, NewRowList2),
-    replace(GameState, NewRow, NewRowList2, NewGameState1),
-    replace(OldRowList, OldColumn, Remaining, NewRowList3),
-    replace(NewGameState1, OldRow, NewRowList3, NewGameState),
+    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList, NewRowList, NewColumnList, NewColumnList2, NewGameState),
     write('Part of tower moved!'), nl, nl.
 
 
