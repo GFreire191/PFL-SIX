@@ -8,13 +8,13 @@ place_disk(GameState, Row, Column, Player, NewGameState) :-
     nth0(Column, RowList, ColumnList),
     append([Player], ColumnList, NewColumnList),
     replace(RowList, Column, NewColumnList, NewRowList),
-    replace(GameState, Row, NewRowList, NewGameState).
+    replace(GameState, Row, NewRowList, NewGameState), !.
     
 
 
 % Move a whole tower to another position
 
-move_tower(GameState,Player, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
+move_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     
     append_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState),
     write('Tower moved!'), nl, nl.
@@ -22,7 +22,7 @@ move_tower(GameState,Player, OldRow, OldColumn, NewRow, NewColumn, NewGameState)
 
 % Move a part of a tower to another position
 
-move_part_tower(GameState, Player, Amount, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
+move_part_tower(GameState, Amount, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     nth0(OldRow, GameState, OldRowList),
     nth0(OldColumn, OldRowList, OldColumnList),
     length(OldColumnList, Length),
@@ -31,7 +31,7 @@ move_part_tower(GameState, Player, Amount, OldRow, OldColumn, NewRow, NewColumn,
     nth0(NewRow, GameState, NewRowList),
     nth0(NewColumn, NewRowList, NewColumnList),
     append(PartToMove, NewColumnList, NewColumnList2),
-    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList, NewRowList, NewColumnList, NewColumnList2, Remaining, NewGameState),
+    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, NewColumnList2, Remaining, NewGameState),
     write('Part of tower moved!'), nl, nl.
 
 %
@@ -51,13 +51,13 @@ append_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     Length2 \= 0 ->
 
     append(OldColumnList, NewColumnList, NewColumnList2),
-    
-    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList, NewRowList, NewColumnList, NewColumnList2, NewGameState).
+    Remaining = [],
+    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, NewColumnList2,Remaining, NewGameState).
 
 
 
 % Replace a list by other list in a list of lists
-replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList, NewRowList, NewColumnList, NewColumnList2, Remaining, NewGameState) :- 
+replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, NewColumnList2, Remaining, NewGameState) :- 
     replace(NewRowList, NewColumn, NewColumnList2, NewRowList2),
     replace(GameState, NewRow, NewRowList2, NewGameState1),
     replace(OldRowList, OldColumn, Remaining, NewRowList3),

@@ -170,7 +170,7 @@ process_option_game(2, GameState, Player,BoardSize, NewGameState) :-
     nth0(Column, RowList, ColumnList),
     length(ColumnList, Length),
     check_moves(Length, Row, Column, NewRow, NewColumn) ->
-    move_tower(GameState,Player ,Row, Column, NewRow, NewColumn, NewGameState);
+    move_tower(GameState,Row, Column, NewRow, NewColumn, NewGameState);
     handle_invalid_moves(GameState, Player,BoardSize, NewGameState));
     handle_invalid_matrix(GameState, Player,BoardSize, NewGameState).
     
@@ -192,7 +192,7 @@ process_option_game(3, GameState, Player,BoardSize, NewGameState) :-
     check_moves(Length, Row, Column, NewRow, NewColumn) ->
     write('How many pieces do you want to move?'),
     read(Amount),
-    move_part_tower(GameState, Player, Amount, Row, Column, NewRow, NewColumn, NewGameState);
+    move_part_tower(GameState, Amount, Row, Column, NewRow, NewColumn, NewGameState);
     handle_invalid_moves(GameState, Player,BoardSize, NewGameState));
     handle_invalid_matrix(GameState, Player,BoardSize, NewGameState).
 
