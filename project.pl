@@ -2,6 +2,7 @@
 :- consult('board.pl').
 :- consult('menu.pl').
 :- consult('utils.pl').
+:- consult('moves.pl').
 
 
 clear :- write('\33\[2J').
@@ -70,7 +71,7 @@ process_option_game(2, Board, Player,BoardSize, NewBoard) :-
     read(NewRow),
     write('Choose the column where you want to move the tower:'),
     read(NewColumn),
-    check_matrix(Row, Column),check_matrix(NewRow, NewColumn),
+    check_matrix(Row, Column,BoardSize),check_matrix(NewRow, NewColumn,BoardSize),
     (nth0(Row, Board, RowList),
     nth0(Column, RowList, ColumnList),
     length(ColumnList, Length),
@@ -90,7 +91,7 @@ process_option_game(3, Board, Player,BoardSize, NewBoard) :-
     read(NewRow),
     write('Choose the column where you want to move the tower:'),
     read(NewColumn),
-    check_matrix(Row, Column),check_matrix(NewRow, NewColumn),
+    check_matrix(Row, Column, BoardSize),check_matrix(NewRow, NewColumn,BoardSize),
     (nth0(Row, Board, RowList),
     nth0(Column, RowList, ColumnList),
     length(ColumnList, Length),
@@ -216,7 +217,30 @@ move5(OldRow, OldColumn, NewRow, NewColumn) :-
     (RowDiff =:= ColumnDiff ; OldRow =:= NewRow ; OldColumn =:= NewColumn).
 
 
+handle_invalid_input(Board, Player,BoardSize, NewBoard):-
+    write('INVALID INPUT!'), nl,
+    print_menu_game,
+    read(OptionGame),nl,
+    process_option_game(OptionGame, Board, Player,BoardSize, NewBoard).
 
+handle_invalid_matrix(Board, Player,BoardSize, NewBoard):-
+    write('NOT IN BOARD RANGE!'), nl,
+    print_menu_game,
+    read(OptionGame),nl,
+    process_option_game(OptionGame, Board, Player,BoardSize, NewBoard).
+    
+
+handle_invalid_moves(Board, Player,BoardSize, NewBoard):-
+    write('INVALID MOVES!'), nl,
+    print_menu_game,
+    read(OptionGame),nl,
+    process_option_game(OptionGame, Board, Player,BoardSize, NewBoard).
+
+handle_invalid_not_empty(Board, Player,BoardSize, NewBoard):-
+    write('NOT EMPTY!'), nl,
+    print_menu_game,
+    read(OptionGame),nl,
+    process_option_game(OptionGame, Board, Player,BoardSize, NewBoard).
 
 
 
