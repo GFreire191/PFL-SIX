@@ -21,6 +21,7 @@ move_tower(GameState,Player, OldRow, OldColumn, NewRow, NewColumn, NewGameState)
     
 
 % Move a part of a tower to another position
+
 move_part_tower(GameState, Player, Amount, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     nth0(OldRow, GameState, OldRowList),
     nth0(OldColumn, OldRowList, OldColumnList),
@@ -30,9 +31,8 @@ move_part_tower(GameState, Player, Amount, OldRow, OldColumn, NewRow, NewColumn,
     nth0(NewRow, GameState, NewRowList),
     nth0(NewColumn, NewRowList, NewColumnList),
     append(PartToMove, NewColumnList, NewColumnList2),
-    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList, NewRowList, NewColumnList, NewColumnList2, NewGameState),
+    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList, NewRowList, NewColumnList, NewColumnList2, Remaining, NewGameState),
     write('Part of tower moved!'), nl, nl.
-
 
 %
 append_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
@@ -57,25 +57,11 @@ append_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
 
 
 % Replace a list by other list in a list of lists
-replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList, NewRowList, NewColumnList, NewColumnList2, NewGameState) :- 
-
+replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList, NewRowList, NewColumnList, NewColumnList2, Remaining, NewGameState) :- 
     replace(NewRowList, NewColumn, NewColumnList2, NewRowList2),
-
     replace(GameState, NewRow, NewRowList2, NewGameState1),
-
-    nth0(OldRow, NewGameState1, Remover),
-
-    nth0(OldColumn, Remover, Removido),
-
-    
-    replace(Remover, OldColumn, [], NewRowList3),
-
+    replace(OldRowList, OldColumn, Remaining, NewRowList3),
     replace(NewGameState1, OldRow, NewRowList3, NewGameState).
-
-
-
-
-
 
 check_moves(1, OldRow, OldColumn, NewRow, NewColumn) :-
     NewRow =:= OldRow + 1, NewColumn =:= OldColumn;
