@@ -72,5 +72,48 @@ replaces(Board, OldRow, OldColumn, NewRow, NewColumn, OldRowList, OldColumnList,
 
     replace(NewBoard1, OldRow, NewRowList3, NewBoard).
 
+
+
+
+
+move_piece(1, OldRow, OldColumn, NewRow, NewColumn) :-
+    NewRow =:= OldRow + 1, NewColumn =:= OldColumn;
+    NewRow =:= OldRow - 1, NewColumn =:= OldColumn;
+    NewRow =:= OldRow, NewColumn =:= OldColumn + 1;
+    NewRow =:= OldRow, NewColumn =:= OldColumn - 1.
+
+
+    
+    
+
+
+    
+
+move_piece(2, OldRow, OldColumn, NewRow, NewColumn) :-
+        OldColumn =:= NewColumn, NewRow \== OldRow;
+        OldRow =:= NewRow,  NewColumn \== OldColumn.
+    
+    
+
+
+
+
+move_piece(3, OldRow, OldColumn, NewRow, NewColumn) :-
+    RowDiff is abs(NewRow - OldRow), ColumnDiff is abs(NewColumn - OldColumn),
+    ((RowDiff =:= 1, ColumnDiff =:= 2) ; (RowDiff =:= 2, ColumnDiff =:= 1)).
+    
+
+
+move_piece(4, OldRow, OldColumn, NewRow, NewColumn) :-
+    RowDiff is abs(NewRow - OldRow),
+    ColumnDiff is abs(NewColumn - OldColumn),
+    RowDiff =:= ColumnDiff.
+
+
+move_piece(5, OldRow, OldColumn, NewRow, NewColumn) :-
+    RowDiff is abs(NewRow - OldRow),
+    ColumnDiff is abs(NewColumn - OldColumn),
+    (RowDiff =:= ColumnDiff ; OldRow =:= NewRow ; OldColumn =:= NewColumn).
+
     
 

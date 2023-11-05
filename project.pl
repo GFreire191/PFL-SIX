@@ -1,8 +1,11 @@
 :- use_module(library(lists)).
+:- use_module(library(random)).
+
 :- consult('board.pl').
 :- consult('menu.pl').
 :- consult('utils.pl').
 :- consult('moves.pl').
+
 
 
 clear :- write('\33\[2J').
@@ -20,7 +23,11 @@ makeSix :-
 
 process_option(1) :-
     nl,
-    start_game.
+    start_game(1).
+
+process_option(2) :-
+    nl,
+    start_game(2).
 
 process_option(4) :-
     makeSix.
@@ -34,14 +41,23 @@ process_option(_) :-
 
 % ---------------------------------------
 
-start_game :-
+start_game(1) :-
+    write('What is the board Size? (4,5)'),
+    read(BoardSize),
+    (BoardSize == 4 ; BoardSize == 5) -> 
+        initial_GameState(BoardSize,Board),
+        game_loop(BoardSize,Board, w);
+    write('Invalid board size. Please enter 4 or 5.'),
+    start_game(1).
+
+start_game(2) :-
     write('What is the board Size? (4,5)'),
     read(BoardSize),
     (BoardSize == 4 ; BoardSize == 5) -> 
         initial_board(BoardSize,Board),
-        game_loop(BoardSize,Board, w);
+        game_loop_PR(BoardSize,Board, w); %Loop of player vs Robot
     write('Invalid board size. Please enter 4 or 5.'),
-    start_game.
+    start_game(2).
     
 
 
@@ -52,8 +68,7 @@ process_option_game(1, Board, Player,BoardSize, NewBoard) :-
     write('Which column?'),
     read(Column),
     check_matrix(Row, Column,BoardSize),
-    (write('HEREEEEEEEEEE'),
-    nth0(Row, Board, RowList),
+    (nth0(Row, Board, RowList),
     nth0(Column, RowList, ColumnList),
     length(ColumnList, Length),
     Length == 0 ->
@@ -112,20 +127,6 @@ process_option_game(_,Board,Player,BoardSize,NewBoard) :-
 
 
 
-
-check_matrix(Row, Column,BoardSize) :-
-    is_valid(Row, Column,BoardSize).
-
-is_valid(X, Y,BoardSize) :-
-    limits(0, BoardSize -1, X),
-    limits(0, BoardSize-1, Y).
-
-limits(Low, High, Low) :- Low =< High.
-limits(Low, High, Value) :-
-    Low < High,
-    Next is Low + 1,
-    limits(Next, High, Value).
-
 % ---------------------------------------
 
 next_player(w, b).
@@ -133,16 +134,100 @@ next_player(b, w).
 
 
 game_loop(BoardSize,Board, Player) :-
-    print_board(BoardSize,Board), nl, nl,
+    displayBoard(BoardSize,Board), nl, nl,
     print_menu_game,
     write('Player '), write(Player), write(' turn:'), nl, nl,
     read(OptionGame), nl,nl,
     process_option_game(OptionGame, Board, Player,BoardSize, NewBoard),
-    (check_win(NewBoard, Player) -> print_board(BoardSize,NewBoard), nl, nl, !;
+    (check_win(NewBoard, Player) -> displayBoard(BoardSize,NewBoard), nl, nl, !;
     next_player(Player, NextPlayer),
     game_loop(BoardSize,NewBoard, NextPlayer)).
 
 
+%Loop of player vs robot, the robot chooses a random move
+
+game_loop_PR(BoardSize, Board, Player) :-
+    displayBoard(BoardSize, Board), nl, nl,
+    (Player == w ->
+        print_menu_game,
+        write('Player '), write(Player), write(' turn:'), nl, nl,
+        read(OptionGame), nl, nl,
+        process_option_game(OptionGame, Board, Player, BoardSize, NewBoard)
+    ;
+        write('Robot turn:'), nl, nl,
+        random_between(1, 3, OptionGame),
+        robot_move(OptionGame, Board, b, BoardSize, NewBoard)
+    ),
+    (check_win(NewBoard, Player) ->
+        displayBoard(BoardSize, NewBoard), nl, nl, !
+    ;
+        next_player(Player, NextPlayer),
+        game_loop_PR(BoardSize, NewBoard, NextPlayer)
+    ).
+
+    
+%Robot move(1) usa o place disk para colocar um disco numa posicao aleatoria
+robot_move(1, Board, b,BoardSize, NewBoard) :-
+    random_between(0, BoardSize, Row),
+    random_between(0, BoardSize, Column),
+    (nth0(Row, Board, RowList),
+    nth0(Column, RowList, ColumnList),
+    length(ColumnList, Length),
+    Length == 0 ->
+    place_disk(Board, Row, Column, b, NewBoard),
+    write('Robot placed a disk in row '), write(Row), write(' and column '), write(Column), write('.'), nl;
+    robot_move(1, Board, b,BoardSize, NewBoard)).
+
+%Robot move(2) usa o move_tower para mover uma torre para uma posicao aleatoria
+robot_move(2, Board, b,BoardSize, NewBoard) :-
+    random_between(0, BoardSize, Row),
+    random_between(0, BoardSize, Column),
+    random_between(0, BoardSize, NewRow),
+    random_between(0, BoardSize, NewColumn),
+    (nth0(Row, Board, RowList),
+    nth0(Column, RowList, ColumnList),
+    length(ColumnList, Length),
+    nth0(NewRow, Board, NewRowList),
+    nth0(NewColumn, NewRowList, NewColumnList),
+    length(NewColumnList, NewLength),
+    NewLength \=0,
+    move_piece(Length, Row, Column, NewRow, NewColumn) ->
+    move_tower(Board, b, Row, Column, NewRow, NewColumn, NewBoard),
+    write('Robot moved a tower from row '), write(Row), write(' and column '), write(Column), write(' to row '), write(NewRow), write(' and column '), write(NewColumn), write('.'), nl;
+    robot_move(2, Board, b,BoardSize, NewBoard)).
+
+
+
+%Robot move(3) usa o move_part_tower para mover uma parte de uma torre para uma posicao aleatoria
+
+robot_move(3, Board, b,BoardSize, NewBoard) :-
+    random_between(0, BoardSize, Row),
+    random_between(0, BoardSize, Column),
+    random_between(0, BoardSize, NewRow),
+    random_between(0, BoardSize, NewColumn),
+    (nth0(Row, Board, RowList),
+    nth0(Column, RowList, ColumnList),
+    length(ColumnList, Length),
+    nth0(NewRow, Board, NewRowList),
+    nth0(NewColumn, NewRowList, NewColumnList),
+    length(NewColumnList, NewLength),
+    NewLength \=0,
+    move_piece(Length, Row, Column, NewRow, NewColumn) ->
+    random_between(1, Length, Amount),
+    move_part_tower(Board, b, Amount, Row, Column, NewRow, NewColumn, NewBoard),
+    write('Robot moved '), write(Amount), write(' pieces of a tower from row '), write(Row), write(' and column '), write(Column), write(' to row '), write(NewRow), write(' and column '), write(NewColumn), write('.'), nl;
+    robot_move(3, Board, b,BoardSize, NewBoard)).
+
+    
+    
+        
+        
+   
+
+
+
+
+    
 
 % Check if a player has won
 check_win(Board, Player) :-
@@ -164,57 +249,7 @@ check_win(Board, Player) :-
             write('Player '), write(OtherPlayer), write(' wins!'), nl),
     !.
     
-move_piece(1, OldRow, OldColumn, NewRow, NewColumn) :-
-    move1(OldRow, OldColumn, NewRow, NewColumn).
 
-move1(OldRow, OldColumn, NewRow, NewColumn) :-
-    write('Entreiiiiiiiiiiiiiii'),
-    (NewRow =:= OldRow + 1, NewColumn =:= OldColumn;
-    NewRow =:= OldRow - 1, NewColumn =:= OldColumn;
-    NewRow =:= OldRow, NewColumn =:= OldColumn + 1;
-    NewRow =:= OldRow, NewColumn =:= OldColumn - 1).
-
-
-    
-
-move_piece(2, OldRow, OldColumn, NewRow, NewColumn) :-
-    move2(OldRow, OldColumn, NewRow, NewColumn).
-        
-move2(OldRow, OldColumn, NewRow, NewColumn) :-
-    write('EntreiiiiiiiiiiiiiiiNekaaaaaa'),
-    (OldColumn =:= NewColumn, NewRow \== OldRow);
-    (OldRow =:= NewRow,  NewColumn \== OldColumn).
-
-
-
-
-move_piece(3, OldRow, OldColumn, NewRow, NewColumn) :-
-    move3(OldRow, OldColumn, NewRow, NewColumn).
-
-move3(OldRow, OldColumn, NewRow, NewColumn) :-
-    (RowDiff is abs(NewRow - OldRow), ColumnDiff is abs(NewColumn - OldColumn),
-    ((RowDiff =:= 1, ColumnDiff =:= 2) ; (RowDiff =:= 2, ColumnDiff =:= 1))).
-
-
-
-
-move_piece(4, OldRow, OldColumn, NewRow, NewColumn) :-
-    move4(OldRow, OldColumn, NewRow, NewColumn).
-
-move4(OldRow, OldColumn, NewRow, NewColumn) :-
-    RowDiff is abs(NewRow - OldRow),
-    ColumnDiff is abs(NewColumn - OldColumn),
-    RowDiff =:= ColumnDiff.
-
-
-
-move_piece(5, OldRow, OldColumn, NewRow, NewColumn) :-
-    move5(OldRow, OldColumn, NewRow, NewColumn).
-
-move5(OldRow, OldColumn, NewRow, NewColumn) :-
-    RowDiff is abs(NewRow - OldRow),
-    ColumnDiff is abs(NewColumn - OldColumn),
-    (RowDiff =:= ColumnDiff ; OldRow =:= NewRow ; OldColumn =:= NewColumn).
 
 
 handle_invalid_input(Board, Player,BoardSize, NewBoard):-
@@ -241,6 +276,22 @@ handle_invalid_not_empty(Board, Player,BoardSize, NewBoard):-
     print_menu_game,
     read(OptionGame),nl,
     process_option_game(OptionGame, Board, Player,BoardSize, NewBoard).
+
+
+
+
+
+
+%Gerar numeros aleatorios entre x e y
+random_between(X,Y,R) :-
+    Y1 is Y+1,
+    random(X,Y1,R).
+
+%Gerar numeros aleatorios dentro de uma lista
+random_mem(X,L) :-
+    length(L,Len),
+    random_between(0,Len,Index),
+    nth0(Index,L,X).
 
 
 
