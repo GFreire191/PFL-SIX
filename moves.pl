@@ -17,9 +17,25 @@ place_disk(GameState, Row, Column, Player, NewGameState) :-
 
 
 move(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
-    
-    append_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState),
+    nth0(OldRow, GameState, OldRowList),
+
+    nth0(OldColumn, OldRowList, OldColumnList),
+
+    length(OldColumnList, Length),
+    Length > 0,
+
+    nth0(NewRow, GameState, NewRowList),
+
+    nth0(NewColumn, NewRowList, NewColumnList),
+
+    length(NewColumnList, Length2),
+    Length2 \= 0 ->
+
+    append(OldColumnList, NewColumnList, StackToPlace),
+    Remaining = [],
+    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, StackToPlace,Remaining, NewGameState),
     write('Tower moved!'), nl, nl.
+    
     
 
 % Move a part of a tower to another position
@@ -37,26 +53,6 @@ move(GameState, Amount, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     write('Part of tower moved!'), nl, nl.
 
 %
-append_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
-    nth0(OldRow, GameState, OldRowList),
-
-    nth0(OldColumn, OldRowList, OldColumnList),
-
-    length(OldColumnList, Length),
-    Length > 0,
-
-    nth0(NewRow, GameState, NewRowList),
-
-    nth0(NewColumn, NewRowList, NewColumnList),
-
-    length(NewColumnList, Length2),
-    Length2 \= 0 ->
-
-    append(OldColumnList, NewColumnList, StackToPlace),
-    Remaining = [],
-    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, StackToPlace,Remaining, NewGameState).
-
-
 
 % Replace a list by other list in a list of lists
 replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, StackToPlace, Remaining, NewGameState) :- 
