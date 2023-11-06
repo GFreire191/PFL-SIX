@@ -20,7 +20,7 @@ play :-
     process_option_menu(Option).
 
 
-%
+% Process the user's option from the main menu
 process_option_menu(1) :-
     nl,
     start_game(1).
@@ -38,20 +38,21 @@ process_option_menu(4) :-
     read(_),
     play.
 
-process_option_menu(5) :- 
+process_option_menu(5) :-
     !, write('Goodbye!'), nl.
 
-process_option_menu(_) :- 
+% If the user selects an invalid option, display an error message and return to the menu
+process_option_menu(_) :-
     write('Invalid Option!'), nl,
     play.
 
-
-%
+% Switch the current player
 next_player(w, b).
 next_player(b, w).
 
 
-%
+
+% Start a game with respective option
 start_game(1) :-
     write('What is the board Size? (4,5)'),
     read(BoardSize),
@@ -66,7 +67,7 @@ start_game(2) :-
     read(BoardSize),
     (BoardSize == 4 ; BoardSize == 5) -> 
         initial_state(BoardSize,GameState),
-        game_loop_HC(BoardSize,GameState, w); %Loop of player vs Robot
+        game_loop_HC(BoardSize,GameState, w);
     write('Invalid board size. Please enter 4 or 5.'),
     start_game(2).
     
@@ -75,12 +76,13 @@ start_game(3) :-
     read(BoardSize),
     (BoardSize == 4 ; BoardSize == 5) -> 
         initial_state(BoardSize,GameState),
-        game_loop_PC(BoardSize,GameState,w); %Loop of Robot vs Robot
+        game_loop_PC(BoardSize,GameState,w);
     write('Invalid board size. Please enter 4 or 5.'),
     start_game(3).
 
 
-%Classic game loop, player vs player
+% Game loop for Player vs Player mode
+
 game_loop_HH(BoardSize,GameState, Player) :-
     display_game(BoardSize,GameState), nl, nl,
     print_menu_game,
@@ -94,8 +96,8 @@ game_loop_HH(BoardSize,GameState, Player) :-
     next_player(Player, NextPlayer),
     game_loop_HH(BoardSize,NewGameState, NextPlayer)).
 
+% Game loop for Player vs Computer mode
 
-%Loop of player vs robot, the robot chooses a random move
 game_loop_HC(BoardSize, GameState, Player) :-
     display_game(BoardSize, GameState), nl, nl,
     count_pieces(GameState, Player, Count),
@@ -120,12 +122,11 @@ game_loop_HC(BoardSize, GameState, Player) :-
     ).
 
 
-%Loop of robot vs robot, the robot chooses a random move
-%Pause the program for 1 second to make it easier to see the moves
-game_loop_PC(BoardSize,GameState,Player):-
+% Game loop for Computer vs Computer mode
+
+game_loop_PC(BoardSize, GameState, Player) :-
     display_game(BoardSize,GameState), nl, nl,
     count_pieces(GameState, Player, Count),
-
     DisksNum is (BoardSize - 1) * 4 - Count,
     write('Computer '), write(Player), write(' has '), write(DisksNum), write(' pieces left.'), nl,
     write('Computer '), write(Player), write(' turn:'), nl, nl,
@@ -139,8 +140,7 @@ game_loop_PC(BoardSize,GameState,Player):-
         game_loop_PC(BoardSize, NewGameState, NextPlayer)
     ).
 
-
-%Count has the be minor than (BoardSize - 1) times 4
+% Process the user's option from the game menu
 process_option_game(1, GameState, Player,BoardSize, NewGameState) :-
     count_pieces(GameState, Player, Count),
     write('Which row?'),
@@ -152,7 +152,9 @@ process_option_game(1, GameState, Player,BoardSize, NewGameState) :-
     nth0(Column, RowList, ColumnList),
     length(ColumnList, Length),
     Length == 0 ->
-    place_disk(GameState, Row, Column, Player, NewGameState),Count < (BoardSize - 1) * 4;
+    Count < (BoardSize - 1) * 4,
+    Count >= 0,
+    place_disk(GameState, Row, Column, Player, NewGameState);
     handle_invalid_not_empty(GameState, Player,BoardSize, NewGameState));
     handle_invalid_matrix(GameState, Player,BoardSize, NewGameState).
 
@@ -194,6 +196,7 @@ process_option_game(3, GameState, Player,BoardSize, NewGameState) :-
     handle_invalid_moves(GameState, Player,BoardSize, NewGameState));
     handle_invalid_matrix(GameState, Player,BoardSize, NewGameState).
 
+% If the user selects an invalid option, display an error message and return to the menu
 process_option_game(_,GameState,Player,BoardSize,NewGameState) :- 
     write('|-----------------------------|'), nl,
     write('| INVALID INPUT!              |'), nl,
@@ -218,7 +221,7 @@ game_over(GameState, Player) :-
     !.
 
 
-% --------------------------------------- HANDLE INVALID INPUT ---------------------------------------
+% Handle invalid inputs
 handle_invalid_input(GameState, Player,BoardSize, NewGameState):-
     nl,
     write('|-----------------------------|'), nl,
@@ -256,21 +259,7 @@ handle_invalid_not_empty(GameState, Player,BoardSize, NewGameState):-
     process_option_game(OptionGame, GameState, Player,BoardSize, NewGameState).
 
 
-%Gerar numeros aleatorios entre x e y
-random_between(X,Y,R) :-
-    Y1 is Y+1,
-    random(X,Y1,R).
 
-random_mem(X,L) :-
-    length(L,Len),
-    random_between(0,Len,Index),
-    nth0(Index,L,X).
-
-
-%
-count_pieces(GameState, Player, Count) :-
-    my_flatten(GameState, FlatGameState),
-    count(Player, FlatGameState, Count).
 
 
 

@@ -44,3 +44,16 @@ count(X, [X|T], N) :-
 count(X, [Y|T], N) :-
     X \= Y,
     count(X, T, N).
+
+
+
+%Gerar numeros aleatorios entre x e y
+random_between(X,Y,R) :-
+    Y1 is Y+1,
+    random(X,Y1,R).
+
+
+% Counts the number of pieces of a player in the board
+count_pieces(GameState, Player, Count) :-
+    my_flatten(GameState, FlatGameState),
+    count(Player, FlatGameState, Count).
