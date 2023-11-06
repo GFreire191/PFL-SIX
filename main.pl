@@ -151,9 +151,8 @@ process_option_game(1, GameState, Player,BoardSize, NewGameState) :-
     (nth0(Row, GameState, RowList),
     nth0(Column, RowList, ColumnList),
     length(ColumnList, Length),
-    Length == 0 ->
     Count < (BoardSize - 1) * 4,
-    Count >= 0,
+    Length == 0 ->    
     place_disk(GameState, Row, Column, Player, NewGameState);
     handle_invalid_not_empty(GameState, Player,BoardSize, NewGameState));
     handle_invalid_matrix(GameState, Player,BoardSize, NewGameState).

@@ -1,10 +1,12 @@
 %move(1) usa o place disk para colocar um disco numa posicao aleatoria
 computer_move(1, GameState, Player,BoardSize, NewGameState) :-
+    count_pieces(GameState, Player, Count),
     random_between(0, BoardSize, Row),
     random_between(0, BoardSize, Column),
     (nth0(Row, GameState, RowList),
     nth0(Column, RowList, ColumnList),
     length(ColumnList, Length),
+    Count < (BoardSize - 1) * 4,
     Length == 0 ->
     place_disk(GameState, Row, Column, Player, NewGameState),
     write('Computer placed a disk in row '), write(Row), write(' and column '), write(Column), write('.'), nl;
