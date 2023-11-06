@@ -213,7 +213,7 @@ game_over(GameState, Player) :-
     Length >= 6,
     nth0(0, Tower, TopDisk),
     (TopDisk == Player ->
-        write('Player '), write(Player), write(' wins!'), nl;
+        nl,nl,write('Player '), write(Player), write(' wins!'), nl,nl;
         next_player(Player, OtherPlayer),
         TopDisk == OtherPlayer ->
             write('Player '), write(OtherPlayer), write(' wins!'), nl),
