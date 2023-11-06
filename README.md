@@ -39,15 +39,14 @@ As stacks têm diferentes movimentos consoante a sua altura:
 🏆 Quando uma stack de seis ou mais é formada, o vencedor é quem possui a sua cor no topo da stack.
 
 ## Lógica do Jogo
-### Representação interna do estado do jogo
+### Representação Interna do Estado do Jogo
 Estado atual do tabuleiro:
-- este é representado por uma **lista de listas de listas**, pois as casas do tabuleiro podem conter vários discos a formar a stack.
-- cada jogador é definido pelo uso dos caracteres `w` e `b`, sendo `w` o primeiro a jogar.
+- Este é representado por uma **lista de listas de listas**, pois as casas do tabuleiro podem conter vários discos a formar a stack.
+- Cada jogador é definido pelo uso dos caracteres `w` e `b`, sendo `w` o primeiro a jogar.
 
-### Estado Inicial (5x5)
+### Estado Inicial (4x4)
 ```
 [
-    [[], [], [], []],
     [[], [], [], []],
     [[], [], [], []],
     [[], [], [], []],
@@ -55,10 +54,9 @@ Estado atual do tabuleiro:
 ] 
 ```
 
-### Estado Intermédio (5x5)
+### Estado Intermédio (4x4)
 ```
 [
-    [[b], [], [], []],
     [[], [w,b], [], []],
     [[], [], [], [w]],
     [[], [b], [], []],
@@ -66,10 +64,9 @@ Estado atual do tabuleiro:
 ]  
 ```
 
-### Estado Final (5x5)
+### Estado Final (4x4)
 ```
 [
-    [[], [], [b], []],
     [[w], [], [], []],
     [[], [w,w,b,b,w,w], [], []],
     [[], [b], [w,b], []],
@@ -77,13 +74,12 @@ Estado atual do tabuleiro:
 ] 
 ```
 
-
-### Visualização do estado do jogo
+### Visualização do Estado do Jogo
 
 Após o ínicio do jogo, ao correr o predicado `play.` é pedido ao usuário o tamanho do tabuleiro, sendo apenas os valores `4` e `5` permitidos.
 
 
-As opções `1`, `2` e `3` correspoondem ao modos de jogo disponíveis:
+As opções `1`, `2` e `3` correspoondem aos modos de jogo disponíveis:
 ```
 1 - Human vs Human
 2 - Human vs Computer
@@ -134,10 +130,28 @@ initial_state(5, [
 ]).
 ```
 
-### Processo de execução de uma jogada
+### Processo de Execução de uma Jogada
 O processo de execução de uma jogada é feita através do predicado `move`, que é responsável pelo movimento das peças e do predicado `valid_moves` que verifica se a nova posição é válida.
 
-move/7, responsável pelo movimento de psrte de uma torre:
+move/6, responsável pelo movimento de uma stack interia:
+
+```prolog
+move(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
+    nth0(OldRow, GameState, OldRowList),
+    nth0(OldColumn, OldRowList, OldColumnList),
+    length(OldColumnList, Length),
+    Length > 0,
+    nth0(NewRow, GameState, NewRowList),
+    nth0(NewColumn, NewRowList, NewColumnList),
+    length(NewColumnList, Length2),
+    Length2 \= 0 ->
+    append(OldColumnList, NewColumnList, StackToPlace),
+    Remaining = [],
+    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, NewRowList, StackToPlace,Remaining, NewGameState),
+    write('Tower moved!'), nl, nl.
+```
+
+move/7, responsável pelo movimento da parte de uma stack:
 
 ```prolog
 move(GameState, Amount, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
@@ -149,25 +163,8 @@ move(GameState, Amount, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     nth0(NewRow, GameState, NewRowList),
     nth0(NewColumn, NewRowList, NewColumnList),
     append(PartToMove, NewColumnList, StackToPlace),
-    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, StackToPlace, Remaining, NewGameState).
-```
-
-move/6, responsável pelo movimento de uma torre interia:
-
-```prolog
-  move(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
-    nth0(OldRow, GameState, OldRowList),
-    nth0(OldColumn, OldRowList, OldColumnList),
-    length(OldColumnList, Length),
-    Length > 0,
-    nth0(NewRow, GameState, NewRowList),
-    nth0(NewColumn, NewRowList, NewColumnList),
-    length(NewColumnList, Length2),
-    Length2 \= 0 ->
-    append(OldColumnList, NewColumnList, StackToPlace),
-    Remaining = [],
-    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, StackToPlace,Remaining, NewGameState),
-    write('Tower moved!'), nl, nl.
+    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, NewRowList, StackToPlace, Remaining, NewGameState),
+    write('Part of tower moved!'), nl, nl.
 ```
 
 Existe ainda um predicado `place_disk` responsável pela funcionalidade de colocar novos discos no tabuleiro.
@@ -181,31 +178,7 @@ place_disk(GameState, Row, Column, Player, NewGameState) :-
     replace(GameState, Row, NewRowList, NewGameState), !.
 ```
 
-### Game Over
-A estratégia utilizada para verificar se o jogo chegou ao fim está implementada através do predicado `game_over` que verifica a existência de uma torre composta por 6 ou mais peças.
-
-```prolog
-game_over(GameState, Player) :-
-    % For each row in the board
-    member(Row, GameState),
-    % For each column in the row
-    member(Tower, Row),
-    % If the length of the tower is 6 or more
-    length(Tower, Length),
-    Length >= 6,
-    % Get the top disk of the tower
-    nth0(0, Tower, TopDisk),
-    % If the top disk matches the current player's color, the current player wins
-    (TopDisk == Player ->
-        write('Player '), write(Player), write(' wins!'), nl;
-        % If the top disk matches the other player's color, the other player wins
-        next_player(Player, OtherPlayer),
-        TopDisk == OtherPlayer ->
-            write('Player '), write(OtherPlayer), write(' wins!'), nl),
-    !.
-```
-
-### Lista das jogadas válidas
+### Lista das Jogadas Válidas
 A verificação de uma jogada é feita pelo predicado `valid_moves` que verifica se a nova posição é válida consoante o comprimento da torra a ser movida.
 
 ```prolog
@@ -234,25 +207,43 @@ valid_moves(5, OldRow, OldColumn, NewRow, NewColumn) :-
     \+((OldRow =:= NewRow, OldColumn =:= NewColumn)),
     (OldRow =:= NewRow ; OldColumn =:= NewColumn ; 
     (RowDiff is abs(NewRow - OldRow), ColumnDiff is abs(NewColumn - OldColumn), RowDiff =:= ColumnDiff)).
+```
 
+### Game Over
+A estratégia utilizada para verificar se o jogo chegou ao fim está implementada através do predicado `game_over` que verifica a existência de uma torre composta por 6 ou mais peças.
+
+```prolog
+game_over(GameState, Player) :-
+    member(Row, GameState),
+    member(Tower, Row),
+    length(Tower, Length),
+    Length >= 6,
+    nth0(0, Tower, TopDisk),
+    (TopDisk == Player ->
+        nl, nl, write('Player '), write(Player), write(' wins!'), nl, nl;
+        next_player(Player, OtherPlayer),
+        TopDisk == OtherPlayer ->
+            write('Player '), write(OtherPlayer), write(' wins!'), nl),
+    !.
 ```
 
 ### Jogadas do Computador
 Jogada do computador:
   - O computador gera um número aleatório entre um e três para escolher que tipo de jogada efetuar. De seguida, gera mais números aleatórios compreendidos ente zero e o tamanho do tabuleiro para escolher a coluna e a linha.
-   Após a escolha, verifica se o movimento é válido consoante as regras. Caso falhe volta a tentar uma combinação possível, assim sucessivamente
-
+   Após a escolha, verifica se o movimento é válido consoante as regras. Caso falhe volta a tentar uma combinação possível, assim sucessivamente.
 
 ```prolog
 computer_move(1, GameState, Player,BoardSize, NewGameState) :-
+    count_pieces(GameState, Player, Count),
     random_between(0, BoardSize, Row),
     random_between(0, BoardSize, Column),
     (nth0(Row, GameState, RowList),
     nth0(Column, RowList, ColumnList),
     length(ColumnList, Length),
+    Count < (BoardSize - 1) * 4,
     Length == 0 ->
     place_disk(GameState, Row, Column, Player, NewGameState),
-    write('Einstein placed a disk in row '), write(Row), write(' and column '), write(Column), write('.'), nl;
+    write('Computer placed a disk in row '), write(Row), write(' and column '), write(Column), write('.'), nl;
     random_between(1,3,Option),
     computer_move(Option, GameState,Player,BoardSize, NewGameState)).
 
@@ -270,7 +261,7 @@ computer_move(2, GameState,Player,BoardSize, NewGameState) :-
     NewLength \=0,
     valid_moves(Length, Row, Column, NewRow, NewColumn) ->
     move(GameState, Row, Column, NewRow, NewColumn, NewGameState),
-    write('Einstein moved a tower from row '), write(Row), write(' and column '), write(Column), write(' to row '), write(NewRow), write(' and column '), write(NewColumn), write('.'), nl;
+    write('Computer moved a tower from row '), write(Row), write(' and column '), write(Column), write(' to row '), write(NewRow), write(' and column '), write(NewColumn), write('.'), nl;
     random_between(1,3,Option),
     computer_move(Option, GameState,Player,BoardSize, NewGameState)).
 
@@ -289,21 +280,19 @@ computer_move(3, GameState,Player,BoardSize, NewGameState) :-
     valid_moves(Length, Row, Column, NewRow, NewColumn) ->
     random_between(1, Length, Amount),
     move(GameState, Amount, Row, Column, NewRow, NewColumn, NewGameState),
-    write('Einstein moved '), write(Amount), write(' pieces of a tower from row '), write(Row), write(' and column '), write(Column), write(' to row '), write(NewRow), write(' and column '), write(NewColumn), write('.'), nl;
+    write('Computer moved '), write(Amount), write(' pieces of a tower from row '), write(Row), write(' and column '), write(Column), write(' to row '), write(NewRow), write(' and column '), write(NewColumn), write('.'), nl;
     random_between(1,3,Option),
     computer_move(Option, GameState,Player,BoardSize, NewGameState)).
-
 ```
 
 ## Conclusão
 Consideramos que o jogo foi implementado com sucesso, com exceção de um segundo nível de inteligência artificial.
 
 ### Dificuldades
-- Manipulação das stacks; 
+- Manipulação das stacks.
 
 ### Melhorias
-- Implementação do nível 2 de inteligência artificial;
+- Implementação do nível 2 de inteligência artificial.
 
 ## Fontes
 - https://www.boardspace.net/english/about_sixmaking.html
-  
