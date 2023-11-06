@@ -14,7 +14,9 @@ place_disk(GameState, Row, Column, Player, NewGameState) :-
 
 % Move a whole tower to another position
 
-move_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
+
+
+move(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     
     append_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState),
     write('Tower moved!'), nl, nl.
@@ -22,7 +24,7 @@ move_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
 
 % Move a part of a tower to another position
 
-move_part_tower(GameState, Amount, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
+move(GameState, Amount, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     nth0(OldRow, GameState, OldRowList),
     nth0(OldColumn, OldRowList, OldColumnList),
     length(OldColumnList, Length),
@@ -30,8 +32,8 @@ move_part_tower(GameState, Amount, OldRow, OldColumn, NewRow, NewColumn, NewGame
     take(Amount, OldColumnList, PartToMove, Remaining),
     nth0(NewRow, GameState, NewRowList),
     nth0(NewColumn, NewRowList, NewColumnList),
-    append(PartToMove, NewColumnList, NewColumnList2),
-    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, NewColumnList2, Remaining, NewGameState),
+    append(PartToMove, NewColumnList, StackToPlace),
+    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, StackToPlace, Remaining, NewGameState),
     write('Part of tower moved!'), nl, nl.
 
 %
@@ -50,20 +52,20 @@ append_tower(GameState, OldRow, OldColumn, NewRow, NewColumn, NewGameState) :-
     length(NewColumnList, Length2),
     Length2 \= 0 ->
 
-    append(OldColumnList, NewColumnList, NewColumnList2),
+    append(OldColumnList, NewColumnList, StackToPlace),
     Remaining = [],
-    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, NewColumnList2,Remaining, NewGameState).
+    replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, StackToPlace,Remaining, NewGameState).
 
 
 
 % Replace a list by other list in a list of lists
-replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, NewColumnList2, Remaining, NewGameState) :- 
-    replace(NewRowList, NewColumn, NewColumnList2, NewRowList2),
-    replace(GameState, NewRow, NewRowList2, NewGameState1),
-    replace(OldRowList, OldColumn, Remaining, NewRowList3),
-    replace(NewGameState1, OldRow, NewRowList3, NewGameState).
+replaces(GameState, OldRow, OldColumn, NewRow, NewColumn, OldRowList, NewRowList, StackToPlace, Remaining, NewGameState) :- 
+    replace(NewRowList, NewColumn, StackToPlace, ListStack),
+    replace(GameState, NewRow, ListStack, NewGameState1),
+    replace(OldRowList, OldColumn, Remaining, UpdatedList),
+    replace(NewGameState1, OldRow, UpdatedList, NewGameState).
 
-check_moves(1, OldRow, OldColumn, NewRow, NewColumn) :-
+valid_moves(1, OldRow, OldColumn, NewRow, NewColumn) :-
     NewRow =:= OldRow + 1, NewColumn =:= OldColumn;
     NewRow =:= OldRow - 1, NewColumn =:= OldColumn;
     NewRow =:= OldRow, NewColumn =:= OldColumn + 1;
@@ -76,7 +78,7 @@ check_moves(1, OldRow, OldColumn, NewRow, NewColumn) :-
 
     
 
-check_moves(2, OldRow, OldColumn, NewRow, NewColumn) :-
+valid_moves(2, OldRow, OldColumn, NewRow, NewColumn) :-
         OldColumn =:= NewColumn, NewRow \== OldRow;
         OldRow =:= NewRow,  NewColumn \== OldColumn.
     
@@ -85,22 +87,24 @@ check_moves(2, OldRow, OldColumn, NewRow, NewColumn) :-
 
 
 
-check_moves(3, OldRow, OldColumn, NewRow, NewColumn) :-
+valid_moves(3, OldRow, OldColumn, NewRow, NewColumn) :-
     RowDiff is abs(NewRow - OldRow), ColumnDiff is abs(NewColumn - OldColumn),
     ((RowDiff =:= 1, ColumnDiff =:= 2) ; (RowDiff =:= 2, ColumnDiff =:= 1)).
     
 
 
-check_moves(4, OldRow, OldColumn, NewRow, NewColumn) :-
+valid_moves(4, OldRow, OldColumn, NewRow, NewColumn) :-
+    OldRow =\= NewRow,
+    OldColumn =\= NewColumn,
     RowDiff is abs(NewRow - OldRow),
     ColumnDiff is abs(NewColumn - OldColumn),
     RowDiff =:= ColumnDiff.
 
-
-check_moves(5, OldRow, OldColumn, NewRow, NewColumn) :-
-    RowDiff is abs(NewRow - OldRow),
-    ColumnDiff is abs(NewColumn - OldColumn),
-    (RowDiff =:= ColumnDiff ; OldRow =:= NewRow ; OldColumn =:= NewColumn).
+    
+valid_moves(5, OldRow, OldColumn, NewRow, NewColumn) :-
+    \+((OldRow =:= NewRow, OldColumn =:= NewColumn)),
+    (OldRow =:= NewRow ; OldColumn =:= NewColumn ; 
+    (RowDiff is abs(NewRow - OldRow), ColumnDiff is abs(NewColumn - OldColumn), RowDiff =:= ColumnDiff)).
 
     
 

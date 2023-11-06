@@ -1,3 +1,7 @@
+
+
+
+% Splits a list into two parts: the first N elements and the remaining elements.
 take(0, List, [], List).
 take(N, [H|T], [H|Res], Rem) :-
     N > 0,
@@ -30,4 +34,18 @@ limits(Low, High, Value) :-
     limits(Next, High, Value).
 
 
+% Join everything in a single list
+my_flatten(X,[X]) :- \+ is_list(X).
+my_flatten([],[]).
+my_flatten([X|Xs],Zs) :- my_flatten(X,Y), my_flatten(Xs,Ys), append(Y,Ys,Zs).
 
+
+
+% Counts the number of occurrences of an element in a list
+count(_, [], 0).
+count(X, [X|T], N) :-
+    count(X, T, N2),
+    N is N2 + 1.
+count(X, [Y|T], N) :-
+    X \= Y,
+    count(X, T, N).

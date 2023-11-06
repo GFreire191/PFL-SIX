@@ -1,12 +1,12 @@
 
-initial_GameState(4, [
-    [[b,b,b], [], [b], []],
-    [[], [], [w,w,w], []],
-    [[], [], [], [b]],
-    [[], [], [b], []]
+initial_state(4, [
+    [[], [], [], []],
+    [[], [], [], []],
+    [[], [], [], []],
+    [[], [], [], []]
 ]).
 
-initial_GameState(5, [
+initial_state(5, [
     [[b,b,b], [], [b], [], []],
     [[], [], [w,w,w], [], []],
     [[], [], [], [b], []],
@@ -49,7 +49,7 @@ print_devider(BoardSize) :-
 
     
 
-displayBoard(BoardSize,X):-
+display_game(BoardSize,X):-
     nl,
     write('                       |'),
     print_header(BoardSize,0),
