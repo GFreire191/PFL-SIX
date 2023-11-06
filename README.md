@@ -10,7 +10,7 @@ O jogo realizado pelo nosso grupo no 1º trabalho prático no âmbito da unidade
 ## Instalação e Execução
 
 Para instalar o jogo Six Making primeiro é necessário fazer o download dos ficheiros presentes em PFL_TP1_T13_SixMaking_2.zip e descompactá-los. 
-Dentro do diretório src consulte o ficheiro main.pl através da linha de comandos ou pela própria UI do Sicstus Prolog 4.8.0.
+Dentro do diretório source-code consulte o ficheiro main.pl através da linha de comandos ou pela própria UI do Sicstus Prolog 4.8.0.
 
 O jogo está disponível em ambientes Windows e Linux e inicia com o predicado:
 
