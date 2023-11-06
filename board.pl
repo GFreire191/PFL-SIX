@@ -1,4 +1,3 @@
-
 initial_state(4, [
     [[], [], [], []],
     [[], [], [], []],
@@ -15,7 +14,6 @@ initial_state(5, [
 ]).
 
 
-
 line(5,5, L) :- L = '           0           '.
 line(4,5, L) :- L = '           1           '.
 line(3,5, L) :- L = '           2           '.
@@ -28,9 +26,7 @@ line(2,4, L) :- L = '           2           '.
 line(1,4, L) :- L = '           3           '.
 
 
-
 print_header(0,_).
-
 print_header(BoardSize,N) :-
     write('           '),
     write(N),
@@ -41,14 +37,12 @@ print_header(BoardSize,N) :-
 
 
 print_devider(-1).
-
 print_devider(BoardSize) :-
     write('-----------------------|'),
     BoardSize1 is BoardSize - 1,
     print_devider(BoardSize1).
 
     
-
 display_game(BoardSize,X):-
     nl,
     write('                       |'),
@@ -57,6 +51,7 @@ display_game(BoardSize,X):-
     print_devider(BoardSize),
     write('\n'),
     print_matrix(X, BoardSize, BoardSize).
+
 
 print_matrix([], 0, _).
 print_matrix([Head|Tail], N, BoardSize) :-
@@ -70,6 +65,7 @@ print_matrix([Head|Tail], N, BoardSize) :-
     write('\n'),
     print_matrix(Tail, N1,BoardSize).
 
+
 print_line([]).
 print_line([Head|Tail]):-
     print_pieces(Head),
@@ -79,7 +75,7 @@ print_line([Head|Tail]):-
     write('|'),
     print_line(Tail).
 
-% ---------------------------------------
+
 print_spaces(0).
 print_spaces(N) :-
     write(' '),

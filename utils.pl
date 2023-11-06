@@ -1,6 +1,3 @@
-
-
-
 % Splits a list into two parts: the first N elements and the remaining elements.
 take(0, List, [], List).
 take(N, [H|T], [H|Res], Rem) :-
@@ -9,7 +6,7 @@ take(N, [H|T], [H|Res], Rem) :-
     take(N1, T, Res, Rem).
 
 
-%-------------------------------------------------- REPLACE A lIST LOCATED IN A ROW/COLUMN --------------------------------------------------
+% Replace a list located in a row/column
 replace([_|T], 0, X, [X|T]).
 replace([H|T], I, X, [H|R]):-
     I > -1,
@@ -18,8 +15,7 @@ replace([H|T], I, X, [H|R]):-
 replace(L, _, _, L).
 
 
-
-%-------------------------------------------------- CHECK IF THE ROW AND COLUMN ARE VALID --------------------------------------------------
+% Check if the row and column are valid
 check_matrix(Row, Column,BoardSize) :-
     is_valid(Row, Column,BoardSize).
 
@@ -38,7 +34,6 @@ limits(Low, High, Value) :-
 my_flatten(X,[X]) :- \+ is_list(X).
 my_flatten([],[]).
 my_flatten([X|Xs],Zs) :- my_flatten(X,Y), my_flatten(Xs,Ys), append(Y,Ys,Zs).
-
 
 
 % Counts the number of occurrences of an element in a list
